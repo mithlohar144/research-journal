@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Paper Content -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="h2 mb-4">{{ paper.title }}</h1>
+                    
+                    <!-- Paper Metadata -->
+                    <div class="d-flex flex-wrap text-muted mb-4">
+                        <div class="me-4">
+                            <i class="fas fa-user me-1"></i>
+                            {{ paper.author.get_full_name|default:paper.author.username }}
+                        </div>
+                        <div class="me-4">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ paper.created_at|date:"F j, Y" }}
+                        </div>
+                        <div class="me-4">
+                            <i class="fas fa-folder me-1"></i>
+                            {{ paper.category.name }}
+                        </div>
+                        <div>
+                            <i class="fas fa-eye me-1"></i>
+                            {{ paper.views }} views
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="mb-4">
+                        {% for tag in paper.tags.all %}
+                            <a href="{% url 'papers:tag' tag.slug %}" class="badge bg-secondary text-decoration-none me-1">
+                                {{ tag.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Abstract -->
+                    <div class="mb-4">
+                        <h4 class="h5 text-primary mb-3">Abstract</h4>
+                        <p class="mb-0">{{ paper.abstract }}</p>
+                    </div>
+
+                    <!-- Paper Content -->
+                    <div class="mb-4">
+                        <h4 class="h5 text-primary mb-3">Content</h4>
+                        {{ paper.content|safe }}
+                    </div>
+
+                    {% if paper.file %}
+                        <div class="mt-4">
+                            <a href="{{ paper.file.url }}" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-download me-2"></i>Download Paper
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Reviews</h2>
+                    {% if user.is_authenticated and user != paper.author and not user_has_reviewed %}
+                        <a href="{% url 'reviews:create' paper.slug %}" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus me-1"></i>Add Review
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if paper.reviews.exists %}
+                        {% for review in paper.reviews.all %}
+                            <div class="mb-4 {% if not forloop.last %}border-bottom pb-4{% endif %}">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="mb-1">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</h5>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-calendar me-1"></i>{{ review.created_at|date:"F j, Y" }}
+                                        </div>
+                                    </div>
+                                    <div class="rating">
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-star me-1"></i>{{ review.rating }}/5
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="mb-0">{{ review.comments }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="mb-0">No reviews yet. Be the first to review this paper!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Author Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0"><i class="fas fa-user me-2"></i>About the Author</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if paper.author.profile_picture %}
+                            <img src="{{ paper.author.profile_picture.url }}" alt="{{ paper.author.get_full_name }}" 
+                                 class="rounded-circle img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x text-secondary"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h4 class="h6 text-center mb-3">{{ paper.author.get_full_name|default:paper.author.username }}</h4>
+                    {% if paper.author.institution %}
+                        <p class="text-muted text-center mb-3">
+                            <i class="fas fa-university me-1"></i>{{ paper.author.institution }}
+                        </p>
+                    {% endif %}
+                    {% if paper.author.bio %}
+                        <p class="mb-0">{{ paper.author.bio|truncatewords:30 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Related Papers -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0"><i class="fas fa-scroll me-2"></i>Related Papers</h3>
+                </div>
+                <div class="card-body">
+                    {% if related_papers %}
+                        <div class="list-group list-group-flush">
+                            {% for related in related_papers %}
+                                <a href="{% url 'papers:detail' related.slug %}" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">{{ related.title }}</h6>
+                                    <p class="text-muted small mb-0">
+                                        <i class="fas fa-calendar me-1"></i>{{ related.created_at|date:"F j, Y" }}
+                                    </p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No related papers found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

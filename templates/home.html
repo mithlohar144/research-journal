@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="py-5 text-center bg-primary text-white rounded-3 mb-5" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;">
+    <div class="py-5">
+        <h1 class="display-3 fw-bold mb-4">Welcome to Research Journal Platform</h1>
+        <p class="lead mb-4">Advancing knowledge through academic research and peer review</p>
+        {% if not user.is_authenticated %}
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-4 gap-3">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </a>
+            </div>
+        {% else %}
+            <a href="{% url 'papers:submit' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-upload me-2"></i>Submit Your Research
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Links Section -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0"><i class="fas fa-compass me-2"></i>Quick Navigation</h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'papers:list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-scroll me-2"></i>All Papers</span>
+                        <span class="badge bg-primary rounded-pill">{{ papers.count }}</span>
+                    </a>
+                    <a href="{% url 'papers:submit' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-upload me-2"></i>Submit Paper
+                    </a>
+                    <a href="#latest-publications" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clock me-2"></i>Latest Publications
+                    </a>
+                    <a href="#categories" class="list-group-item list-group-item-action">
+                        <i class="fas fa-folder me-2"></i>Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0"><i class="fas fa-tags me-2"></i>Popular Tags</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for tag in tags %}
+                            <a href="{% url 'papers:tag' tag.slug %}" class="btn btn-sm btn-outline-primary">
+                                {{ tag.name }}
+                                <span class="badge bg-primary ms-1">{{ tag.num_times }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Publications Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-4">Latest Publications</h2>
+    <div class="row g-4">
+        {% for paper in latest_papers %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h5 card-title">{{ paper.title }}</h3>
+                        <div class="text-muted mb-3">
+                            <i class="fas fa-user me-2"></i>{{ paper.author.get_full_name }} •
+                            <i class="fas fa-calendar me-2"></i>{{ paper.created_at|date:"F j, Y" }}
+                        </div>
+                        <p class="card-text">{{ paper.abstract|truncatewords:30 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'papers:detail' paper.slug %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-2"></i>Read More
+                            </a>
+                            {% for tag in paper.tags.all %}
+                                <span class="badge bg-primary">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Categories Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-4">Categories</h2>
+    <div class="row g-4">
+        {% for category in categories %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="h5 card-title">{{ category.name }}</h3>
+                        <p class="card-text">{{ category.description }}</p>
+                        <a href="{% url 'papers:category' category.slug %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>View Papers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
