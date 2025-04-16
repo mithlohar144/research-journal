@@ -1,10 +1,9 @@
 [build]
-command = "python manage.py collectstatic --noinput && python manage.py migrate"
+command = "python manage.py collectstatic --noinput"
 publish = "staticfiles"
-functions = "netlify/functions"
 
 [build.environment]
-PYTHON_VERSION = "3.9"
+PYTHON_VERSION = "3.11"
 
 [[redirects]]
 from = "/*"
