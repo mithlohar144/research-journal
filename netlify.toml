@@ -6,6 +6,8 @@ publish = "staticfiles"
 
 [build.environment]
 PYTHON_VERSION = "3.11"
+SECRET_KEY = "django-insecure-development-key"
+DEBUG = "False"
 
 [[redirects]]
 from = "/*"
