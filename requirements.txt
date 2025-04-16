@@ -13,3 +13,6 @@ boto3==1.34.7
 botocore==1.34.7
 psycopg2==2.9.9
 Pillow-SIMD==9.5.1
+sqlparse==0.5.3
+tzdata==2025.2
+asgiref==3.8.1
