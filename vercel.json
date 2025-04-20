@@ -11,5 +11,15 @@
       "src": "/(.*)",
       "dest": "index.py"
     }
-  ]
+  ],
+  "env": {
+    "DEBUG": "true",
+    "DJANGO_SETTINGS_MODULE": "research_journal.settings"
+  },
+  "build": {
+    "env": {
+      "DEBUG": "true",
+      "DJANGO_SETTINGS_MODULE": "research_journal.settings"
+    }
+  }
 }
